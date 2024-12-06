@@ -1,12 +1,14 @@
 <svelte:options runes={true} />
+
 <script lang="ts">
-	import { Fileupload, Label } from "flowbite-svelte";
+	import { Fileupload, Label } from 'flowbite-svelte';
 
 	let {
 		file = $bindable(null as File | null),
 		label
 	}: {
-		file: File | null, label: string
+		file: File | null;
+		label: string;
 	} = $props();
 
 	let files: FileList | undefined = $state(undefined);
@@ -23,11 +25,5 @@
 
 <div class="flex flex-col">
 	<Label>{label}</Label>
-	<Fileupload
-		bind:files
-		accept=".pdf"
-		multiple={false}
-		on:change={updateFile}
-		required
-	/>
+	<Fileupload bind:files accept=".pdf" multiple={false} on:change={updateFile} required />
 </div>
