@@ -1,7 +1,7 @@
 {
 	"overrides": [
 		{
-			"include": ["*.svelte", "*.astro", "*.vue"],
+			"include": ["*.svelte"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -15,17 +15,13 @@
 	"linter": {
 		"rules": {
 			"suspicious": {
-				"all": true,
-				"noConsole": "off",
-				"noConsoleLog": "off",
-				"noExplicitAny": "off"
+				"all": true
 			},
 			"style": {
 				"recommended": true
 			},
 			"complexity": {
-				"recommended": true,
-				"noForEach": "off"
+				"recommended": true
 			},
 			"correctness": {
 				"recommended": true
