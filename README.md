@@ -1,6 +1,8 @@
-# [ssc-applications-prototype](https://ssciwr.github.io/ssc-applications-prototype)
+# SSC Job Application Form proof-of-concept
 
-WIP
+[ssciwr.github.io/apply](https://ssciwr.github.io/apply)
+
+WIP!
 
 Proof of concept where you can upload multiple pdf files, fill in other data, then download a single merged pdf.
 
