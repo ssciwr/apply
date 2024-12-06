@@ -98,7 +98,7 @@ async function downloadMergedPdf() {
 		{/each}
 		<P>Once you have uploaded all required documents, please click "Download PDF" to download your application as a PDF
 			file and then send it by email to abc@xyz.com</P>
-		<Button color="primary" class="m-4" on:click={downloadMergedPdf} disabled={!applicationComplete}>
+		<Button color="primary" on:click={downloadMergedPdf} disabled={!applicationComplete}>
 			<DownloadOutline />
 			Download PDF
 		</Button>
