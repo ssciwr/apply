@@ -19,11 +19,14 @@ let name = $state("");
 let pdfCoverLetter = $state(null as File | null);
 let pdfCV = $state(null as File | null);
 let pdfMastersCertificate = $state(null as File | null);
-let applicationComplete = true; //$derived(pdfCoverLetter && pdfCV && pdfMastersCertificate);
+let applicationComplete = $derived(
+	pdfCoverLetter && pdfCV && pdfMastersCertificate,
+);
 
 let checkboxes = $state([
 	{ id: "Internal candidate", text: "Internal candidate", value: false },
 	{ id: "Check2", text: "check box 2", value: false },
+	{ id: "Check3", text: "check box 3", value: false },
 ]);
 
 function writeLine(page: PDFPage, text: string, ypos: number): number {
@@ -53,9 +56,9 @@ async function downloadMergedPdf() {
 	}
 	const merger = new PDFMerger();
 	await merger.add(await createPdfFrontPage());
-	// await merger.add(pdfCoverLetter)
-	// await merger.add(pdfCV)
-	// await merger.add(pdfMastersCertificate)
+	await merger.add(pdfCoverLetter);
+	await merger.add(pdfCV);
+	await merger.add(pdfMastersCertificate);
 	await merger.save("application");
 }
 </script>
@@ -65,7 +68,7 @@ async function downloadMergedPdf() {
 	<Card size="2xl" class="my-2">
 		<div class="flex flex-col space-y-4">
 			<P
-				>To apply for this position, please fill in all required fields, then click "Download PDF"
+			>To apply for this position, please fill in all required fields, then click "Download PDF"
 				to download your application as PDF file and send it to abc@xyz.com</P
 			>
 			<div>
