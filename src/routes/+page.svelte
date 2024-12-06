@@ -4,7 +4,6 @@
 import UploadPdf from "$lib/components/UploadPdf.svelte";
 import DownloadOutline from "flowbite-svelte-icons/DownloadOutline.svelte";
 import Button from "flowbite-svelte/Button.svelte";
-import Card from "flowbite-svelte/Card.svelte";
 import Checkbox from "flowbite-svelte/Checkbox.svelte";
 import Heading from "flowbite-svelte/Heading.svelte";
 import Input from "flowbite-svelte/Input.svelte";
@@ -79,29 +78,29 @@ async function downloadMergedPdf() {
 }
 </script>
 
-<div class="flex flex-col md:container md:mx-auto">
+<div class="flex flex-col container max-w-2xl md:mx-auto p-2">
 	<Heading class="my-2 p-4 text-center">WORK IN PROGRESSS!</Heading>
-	<Card size="xl" class="my-2">
-		<div class="flex flex-col space-y-4">
-			<P
-			>To apply for this position, please fill in all required fields, then click "Download PDF"
-				to download your application as PDF file and send it to abc@xyz.com</P
-			>
-			<div>
-				<Label>Name</Label>
-				<Input bind:value={name}></Input>
-			</div>
-			<UploadPdf bind:file={pdfCoverLetter} label="Cover Letter (pdf)" />
-			<UploadPdf bind:file={pdfCV} label="CV (pdf)" />
-			<UploadPdf bind:file={pdfMastersCertificate} label="Masters or PhD Certificate (pdf)" />
-			<P>Please check if any of the following apply to your application:</P>
-			{#each checkboxes as checkbox (checkbox.id)}
-				<Checkbox bind:checked={checkbox.value}>{checkbox.text}</Checkbox>
-			{/each}
+	<div class="flex flex-col space-y-4 p-4">
+		<P
+		>To apply for this position, please fill in all required fields, then click "Download PDF"
+			to download your application as PDF file and send it to abc@xyz.com</P
+		>
+		<div>
+			<Label>Name</Label>
+			<Input bind:value={name}></Input>
 		</div>
-	</Card>
-	<Button color="primary" class="m-4" on:click={downloadMergedPdf} disabled={!applicationComplete}>
-		<DownloadOutline />
-		Download PDF
-	</Button>
+		<UploadPdf bind:file={pdfCoverLetter} label="Cover Letter (pdf, required)" />
+		<UploadPdf bind:file={pdfCV} label="CV (pdf, required)" />
+		<UploadPdf bind:file={pdfMastersCertificate} label="Masters or PhD Certificate (pdf, required)" />
+		<P>Please check if any of the following apply to your application:</P>
+		{#each checkboxes as checkbox (checkbox.id)}
+			<Checkbox bind:checked={checkbox.value} class="mx-4">{checkbox.text}</Checkbox>
+		{/each}
+		<P>Once you have uploaded all required documents, please click "Download PDF" to download your application as a PDF
+			file and then send it by email to abc@xyz.com</P>
+		<Button color="primary" class="m-4" on:click={downloadMergedPdf} disabled={!applicationComplete}>
+			<DownloadOutline />
+			Download PDF
+		</Button>
+	</div>
 </div>
