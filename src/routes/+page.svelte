@@ -12,7 +12,6 @@ import Label from "flowbite-svelte/Label.svelte";
 import P from "flowbite-svelte/P.svelte";
 import { PDFDocument } from "pdf-lib";
 import type { PDFPage } from "pdf-lib";
-import PDFMerger from "pdf-merger-js/browser";
 
 let position = $state("RSE");
 let name = $state("");
@@ -47,25 +46,42 @@ async function createPdfFrontPage() {
 			ypos,
 		);
 	}
-	return pdfDoc.save();
+	return pdfDoc;
+}
+
+async function addPdf(pdfDoc: PDFDocument, uploadedPdf: File | null) {
+	if (!uploadedPdf) {
+		return;
+	}
+	const buf = await uploadedPdf.arrayBuffer();
+	const uploadedDoc = await PDFDocument.load(buf);
+	for (const page of await pdfDoc.copyPages(
+		uploadedDoc,
+		uploadedDoc.getPageIndices(),
+	)) {
+		pdfDoc.addPage(page);
+	}
 }
 
 async function downloadMergedPdf() {
 	if (!applicationComplete) {
 		return;
 	}
-	const merger = new PDFMerger();
-	await merger.add(await createPdfFrontPage());
-	await merger.add(pdfCoverLetter);
-	await merger.add(pdfCV);
-	await merger.add(pdfMastersCertificate);
-	await merger.save("application");
+	let pdfDoc = await createPdfFrontPage();
+	await addPdf(pdfDoc, pdfCoverLetter);
+	await addPdf(pdfDoc, pdfMastersCertificate);
+	await addPdf(pdfDoc, pdfCV);
+	const dataUri = await pdfDoc.saveAsBase64({ dataUri: true });
+	const link = document.createElement("a");
+	link.href = dataUri;
+	link.download = `SSC Application ${name}.pdf`;
+	link.click();
 }
 </script>
 
 <div class="flex flex-col md:container md:mx-auto">
 	<Heading class="my-2 p-4 text-center">WORK IN PROGRESSS!</Heading>
-	<Card size="2xl" class="my-2">
+	<Card size="xl" class="my-2">
 		<div class="flex flex-col space-y-4">
 			<P
 			>To apply for this position, please fill in all required fields, then click "Download PDF"
