@@ -1,59 +1,63 @@
 <svelte:options runes={true} />
 
 <script lang="ts">
-	import Button from 'flowbite-svelte/Button.svelte';
-	import Card from 'flowbite-svelte/Card.svelte';
-	import Input from 'flowbite-svelte/Input.svelte';
-	import Label from 'flowbite-svelte/Label.svelte';
-	import Heading from 'flowbite-svelte/Heading.svelte';
-	import P from 'flowbite-svelte/P.svelte';
-	import Checkbox from 'flowbite-svelte/Checkbox.svelte';
-	import DownloadOutline from 'flowbite-svelte-icons/DownloadOutline.svelte';
-	import { PDFDocument } from 'pdf-lib';
-	import type { PDFPage } from 'pdf-lib';
-	import PDFMerger from 'pdf-merger-js/browser';
-	import UploadPdf from '$lib/components/UploadPdf.svelte';
+import UploadPdf from "$lib/components/UploadPdf.svelte";
+import DownloadOutline from "flowbite-svelte-icons/DownloadOutline.svelte";
+import Button from "flowbite-svelte/Button.svelte";
+import Card from "flowbite-svelte/Card.svelte";
+import Checkbox from "flowbite-svelte/Checkbox.svelte";
+import Heading from "flowbite-svelte/Heading.svelte";
+import Input from "flowbite-svelte/Input.svelte";
+import Label from "flowbite-svelte/Label.svelte";
+import P from "flowbite-svelte/P.svelte";
+import { PDFDocument } from "pdf-lib";
+import type { PDFPage } from "pdf-lib";
+import PDFMerger from "pdf-merger-js/browser";
 
-	let position = $state('RSE');
-	let name = $state('');
-	let pdfCoverLetter = $state(null as File | null);
-	let pdfCV = $state(null as File | null);
-	let pdfMastersCertificate = $state(null as File | null);
-	let applicationComplete = true; //$derived(pdfCoverLetter && pdfCV && pdfMastersCertificate);
+let position = $state("RSE");
+let name = $state("");
+let pdfCoverLetter = $state(null as File | null);
+let pdfCV = $state(null as File | null);
+let pdfMastersCertificate = $state(null as File | null);
+let applicationComplete = true; //$derived(pdfCoverLetter && pdfCV && pdfMastersCertificate);
 
-	let checkboxes = $state([
-		{ id: 'Internal candidate', text: 'Internal candidate', value: false },
-		{ id: 'Check2', text: 'check box 2', value: false }
-	]);
+let checkboxes = $state([
+	{ id: "Internal candidate", text: "Internal candidate", value: false },
+	{ id: "Check2", text: "check box 2", value: false },
+]);
 
-	function writeLine(page: PDFPage, text: string, ypos: number): number {
-		page.drawText(text, { x: 50, y: page.getSize().height - ypos });
-		return ypos + 50;
+function writeLine(page: PDFPage, text: string, ypos: number): number {
+	page.drawText(text, { x: 50, y: page.getSize().height - ypos });
+	return ypos + 50;
+}
+
+async function createPdfFrontPage() {
+	const pdfDoc = await PDFDocument.create();
+	const page = pdfDoc.addPage();
+	let ypos = 100;
+	ypos = writeLine(page, `Application for SSC Position: ${position}`, ypos);
+	ypos = writeLine(page, `Name: ${name}`, ypos);
+	for (const checkbox of checkboxes) {
+		ypos = writeLine(
+			page,
+			`${checkbox.id}: ${checkbox.value ? "YES" : "NO"}`,
+			ypos,
+		);
 	}
+	return pdfDoc.save();
+}
 
-	async function createPdfFrontPage() {
-		const pdfDoc = await PDFDocument.create();
-		const page = pdfDoc.addPage();
-		let ypos = 100;
-		ypos = writeLine(page, `Application for SSC Position: ${position}`, ypos);
-		ypos = writeLine(page, `Name: ${name}`, ypos);
-		for (const checkbox of checkboxes) {
-			ypos = writeLine(page, `${checkbox.id}: ${checkbox.value ? 'YES' : 'NO'}`, ypos);
-		}
-		return pdfDoc.save();
+async function downloadMergedPdf() {
+	if (!applicationComplete) {
+		return;
 	}
-
-	async function downloadMergedPdf() {
-		if (!applicationComplete) {
-			return;
-		}
-		const merger = new PDFMerger();
-		await merger.add(await createPdfFrontPage());
-		// await merger.add(pdfCoverLetter)
-		// await merger.add(pdfCV)
-		// await merger.add(pdfMastersCertificate)
-		await merger.save('application');
-	}
+	const merger = new PDFMerger();
+	await merger.add(await createPdfFrontPage());
+	// await merger.add(pdfCoverLetter)
+	// await merger.add(pdfCV)
+	// await merger.add(pdfMastersCertificate)
+	await merger.save("application");
+}
 </script>
 
 <div class="flex flex-col md:container md:mx-auto">
