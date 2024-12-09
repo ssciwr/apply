@@ -62,9 +62,19 @@ function writeLine(page: PDFPage, text: string, yPos: number): number {
 	return yPos + yPadding;
 }
 
+function writeHeader(page: PDFPage, text: string) {
+	page.drawText(`${text} - ${position} - ${name}`, {
+		x: 5,
+		y: page.getSize().height - 12,
+		size: 10,
+		color: rgb(0.227, 0.62, 0.749),
+	});
+}
+
 async function createPdfFrontPage() {
 	const pdfDoc = await PDFDocument.create();
 	const page = pdfDoc.addPage();
+	writeHeader(page, "Application");
 	let yPos = 80;
 	yPos = writeLine(page, "SSC Application", yPos);
 	yPos = writeLine(page, `Position: ${position}`, yPos);
@@ -94,12 +104,7 @@ async function addPdf(
 		uploadedDoc.getPageIndices(),
 	)) {
 		let newPage = pdfDoc.addPage(page);
-		newPage.drawText(`${pdfId} - ${position} - ${name}`, {
-			x: 5,
-			y: page.getSize().height - 12,
-			size: 10,
-			color: rgb(0.227, 0.62, 0.749),
-		});
+		writeHeader(newPage, pdfId);
 	}
 }
 
