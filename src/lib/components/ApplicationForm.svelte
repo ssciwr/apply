@@ -2,6 +2,7 @@
 
 <script lang="ts">
 import UploadPdf from "$lib/components/UploadPdf.svelte";
+import { preventDefault } from "$lib/util";
 import DownloadOutline from "flowbite-svelte-icons/DownloadOutline.svelte";
 import Button from "flowbite-svelte/Button.svelte";
 import Checkbox from "flowbite-svelte/Checkbox.svelte";
@@ -130,12 +131,13 @@ async function downloadMergedPdf() {
 			>To apply for this position, please fill in all required fields, then click "Download PDF"
 				to download your application as PDF file and send it to abc@xyz.com</P
 			>
+			<form onsubmit={preventDefault(downloadMergedPdf)}>
 			<div>
-				<Label>Name</Label>
-				<Input bind:value={name}></Input>
+				<Label for="name">Name</Label>
+				<Input bind:value={name} id="name"></Input>
 			</div>
 			{#each pdfs as pdf (pdf.id)}
-				<UploadPdf bind:file={pdf.file} label={`${pdf.label} (pdf)`} />
+				<UploadPdf bind:file={pdf.file} label={`${pdf.label} (pdf)`} id={pdf.id} />
 			{/each}
 			<P>Please check if any of the following apply to your application:</P>
 			{#each checkboxes as checkbox (checkbox.id)}
@@ -144,8 +146,9 @@ async function downloadMergedPdf() {
 			<P>Once you have uploaded all required documents, please click "Download PDF" to download your application as a
 				PDF
 				file and then send it by email to abc@xyz.com</P>
-			<Button color="primary" on:click={downloadMergedPdf} disabled={!applicationComplete}>
+			<Button type="submit" color="primary" on:click={downloadMergedPdf} disabled={!applicationComplete}>
 				<DownloadOutline />
 				Download PDF
 			</Button>
+			</form>
 		</div>
