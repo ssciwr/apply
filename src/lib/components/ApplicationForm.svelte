@@ -1,7 +1,6 @@
 <svelte:options runes={true} />
 
 <script lang="ts">
-import { page } from "$app/stores";
 import UploadPdf from "$lib/components/UploadPdf.svelte";
 import DownloadOutline from "flowbite-svelte-icons/DownloadOutline.svelte";
 import Button from "flowbite-svelte/Button.svelte";
@@ -11,16 +10,15 @@ import Input from "flowbite-svelte/Input.svelte";
 import Label from "flowbite-svelte/Label.svelte";
 import P from "flowbite-svelte/P.svelte";
 import type { PDFPage } from "pdf-lib";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, rgb } from "pdf-lib";
+
+let {
+	position,
+}: {
+	position: string;
+} = $props();
 
 let name = $state("");
-
-let openPositions = $state({
-	rse: "SSC Research Software Engineer",
-	web: "SSC Research Software Engineer - Web Development",
-	hpc: "SSC Research Software Engineer - HPC",
-} as Record<string, string>);
-let position = openPositions[$page.params.position] ?? "";
 
 let pdfs = $state([
 	{
@@ -59,14 +57,15 @@ let applicationComplete = $derived.by(() => {
 });
 
 function writeLine(page: PDFPage, text: string, yPos: number): number {
-	page.drawText(text, { x: 50, y: page.getSize().height - yPos });
-	return yPos + 50;
+	const yPadding = 40;
+	page.drawText(text, { x: 50, y: page.getSize().height - yPos, size: 18 });
+	return yPos + yPadding;
 }
 
 async function createPdfFrontPage() {
 	const pdfDoc = await PDFDocument.create();
 	const page = pdfDoc.addPage();
-	let yPos = 100;
+	let yPos = 80;
 	yPos = writeLine(page, "SSC Application", yPos);
 	yPos = writeLine(page, `Position: ${position}`, yPos);
 	yPos = writeLine(page, `Name: ${name}`, yPos);
@@ -80,7 +79,11 @@ async function createPdfFrontPage() {
 	return pdfDoc;
 }
 
-async function addPdf(pdfDoc: PDFDocument, uploadedPdf: File | null) {
+async function addPdf(
+	pdfDoc: PDFDocument,
+	uploadedPdf: File | null,
+	pdfId: string,
+) {
 	if (!uploadedPdf) {
 		return;
 	}
@@ -90,7 +93,13 @@ async function addPdf(pdfDoc: PDFDocument, uploadedPdf: File | null) {
 		uploadedDoc,
 		uploadedDoc.getPageIndices(),
 	)) {
-		pdfDoc.addPage(page);
+		let newPage = pdfDoc.addPage(page);
+		newPage.drawText(`${pdfId} - ${position} - ${name}`, {
+			x: 5,
+			y: page.getSize().height - 12,
+			size: 10,
+			color: rgb(0.227, 0.62, 0.749),
+		});
 	}
 }
 
@@ -100,7 +109,7 @@ async function downloadMergedPdf() {
 	}
 	let pdfDoc = await createPdfFrontPage();
 	for (const pdf of pdfs) {
-		await addPdf(pdfDoc, pdf.file);
+		await addPdf(pdfDoc, pdf.file, pdf.id);
 	}
 	const dataUri = await pdfDoc.saveAsBase64({ dataUri: true });
 	const link = document.createElement("a");
@@ -110,9 +119,6 @@ async function downloadMergedPdf() {
 }
 </script>
 
-<div class="flex flex-col container max-w-2xl md:mx-auto p-2">
-	<Heading class="my-2 p-4 text-center text-red-500">WORK IN PROGRESSS!</Heading>
-	{#if position}
 		<div class="flex flex-col space-y-4 p-4">
 			<Heading tag="h3">{position}</Heading>
 			<P
@@ -138,9 +144,3 @@ async function downloadMergedPdf() {
 				Download PDF
 			</Button>
 		</div>
-	{:else}
-		<div class="flex flex-col space-y-4 p-4">
-			<Heading tag="h3">Invalid or expired link.</Heading>
-		</div>
-	{/if}
-</div>
