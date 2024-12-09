@@ -22,29 +22,29 @@ let name = $state("");
 
 let pdfs = $state([
 	{
-		id: "CoverLetter",
-		text: "Cover Letter (pdf)",
+		id: "cov",
+		label: "Cover Letter",
 		required: false,
 		file: null as File | null,
 	},
 	{
-		id: "CV",
-		text: "CV (pdf, required)",
+		id: "cv",
+		label: "CV",
 		required: true,
 		file: null as File | null,
 	},
 	{
-		id: "MastersCertificate",
-		text: "Masters or PhD Certificate (pdf, required)",
+		id: "cert",
+		label: "Masters or PhD Certificate",
 		required: true,
 		file: null as File | null,
 	},
 ]);
 
 let checkboxes = $state([
-	{ id: "Internal candidate", text: "Internal candidate", value: false },
-	{ id: "Check2", text: "check box 2", value: false },
-	{ id: "Check3", text: "check box 3", value: false },
+	{ id: "Internal candidate", label: "Internal candidate", value: false },
+	{ id: "Check2", label: "check box 2", value: false },
+	{ id: "Check3", label: "check box 3", value: false },
 ]);
 
 let applicationComplete = $derived.by(() => {
@@ -92,7 +92,7 @@ async function createPdfFrontPage() {
 async function addPdf(
 	pdfDoc: PDFDocument,
 	uploadedPdf: File | null,
-	pdfId: string,
+	label: string,
 ) {
 	if (!uploadedPdf) {
 		return;
@@ -104,7 +104,7 @@ async function addPdf(
 		uploadedDoc.getPageIndices(),
 	)) {
 		let newPage = pdfDoc.addPage(page);
-		writeHeader(newPage, pdfId);
+		writeHeader(newPage, label);
 	}
 }
 
@@ -114,7 +114,7 @@ async function downloadMergedPdf() {
 	}
 	let pdfDoc = await createPdfFrontPage();
 	for (const pdf of pdfs) {
-		await addPdf(pdfDoc, pdf.file, pdf.id);
+		await addPdf(pdfDoc, pdf.file, pdf.label);
 	}
 	const dataUri = await pdfDoc.saveAsBase64({ dataUri: true });
 	const link = document.createElement("a");
@@ -135,11 +135,11 @@ async function downloadMergedPdf() {
 				<Input bind:value={name}></Input>
 			</div>
 			{#each pdfs as pdf (pdf.id)}
-				<UploadPdf bind:file={pdf.file} label={pdf.text} />
+				<UploadPdf bind:file={pdf.file} label={`${pdf.label} (pdf)`} />
 			{/each}
 			<P>Please check if any of the following apply to your application:</P>
 			{#each checkboxes as checkbox (checkbox.id)}
-				<Checkbox bind:checked={checkbox.value} class="mx-4">{checkbox.text}</Checkbox>
+				<Checkbox bind:checked={checkbox.value} class="mx-4">{checkbox.label}</Checkbox>
 			{/each}
 			<P>Once you have uploaded all required documents, please click "Download PDF" to download your application as a
 				PDF
