@@ -1,5 +1,5 @@
 <script>
-import "../app.pcss";
+import "../app.css";
 import Heading from "flowbite-svelte/Heading.svelte";
 </script>
 
